@@ -1,0 +1,5 @@
+*.env
+nysc_demo/*
+.coverage
+.idea/*
+__pycache__/*
