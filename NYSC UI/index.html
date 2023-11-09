@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="app.js"></script>
+</head>
+<body>
+    <center>
+        <h1>Airtime Recharge</h1>
+        <label>Enter your phone number :</label>
+        <br>
+        <input type="text" id="phone_no" required>
+        <br>
+        <br>
+
+        <input type="checkbox" id="check"><label>Hide Number</label>
+        <br>
+        <br>
+
+        <button id="recharge_btn">Recharge!!</button>
+
+    </center>
+
+    <script>
+        const checkBox = document.getElementById("check");
+        const textBox = document.getElementById("phone_no");
+        const recharge_btn = document.getElementById("recharge_btn");
+
+        checkBox.addEventListener("change", function(){
+            textBox.type = checkBox.checked ? 'password' : 'text';
+        });
+
+        recharge_btn.addEventListener("click", recharge());
+
+    </script>
+</body>
+</html>
