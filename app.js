@@ -3,7 +3,7 @@ const textBox = document.getElementById("phone_no");
 const recharge_btn = document.getElementById("recharge_btn");
 
 checkBox.addEventListener("change", function () {
-    textBox.type = checkBox.checked ? 'password' : 'text';
+    textBox.type = checkBox.checked ? 'password' : 'number';
 });
 
 recharge_btn.addEventListener("click", recharge());
@@ -21,5 +21,4 @@ function recharge() {
     })
         .then(response => response.json())
         .then(data => console.log(data));
-    // .catch(error => console.error('Error', error));
 }
