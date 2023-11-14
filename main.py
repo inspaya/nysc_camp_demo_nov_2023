@@ -18,7 +18,8 @@ CONFIRM_URL = f"{environ['SERVICE_BASE_URL']}requery"
 conn = connect("nysc_camp_demo.db")
 cursor = Cursor()
 cursor.execute("""
-    CREATE TABLE IF NOT EXISTS beneficiaries(request_id UNIQUE, phone_no NOT NULL, status NOT NULL, response_message)
+    CREATE TABLE IF NOT EXISTS 
+    beneficiaries(request_id UNIQUE, phone_no NOT NULL, status NOT NULL, response_message, last_updated DATE DEFAULT CURRENT_TIMESTAMP)
 """)
 
 
@@ -49,7 +50,7 @@ def _save_phone_number(**transaction_details) -> bool:
         )
         phone_save = cursor.execute("""
             INSERT INTO beneficiaries(request_id, phone_no, status, response_message) 
-            VALUES()
+            VALUES(?, ?, ?, ?)
         """, parameters)
         phone_save.commit()
     except Exception as saveException:
