@@ -1,4 +1,5 @@
 from os import environ
+from sqlite3 import connect, Cursor
 from json import loads, dumps
 from uuid import uuid4
 from typing import Union
@@ -13,6 +14,13 @@ app = FastAPI(openapi_url="/api/openapi.json", docs_url="/api/demo", redoc_url=N
 RECHARGE_URL = f"{environ['SERVICE_BASE_URL']}pay"
 CONFIRM_URL = f"{environ['SERVICE_BASE_URL']}requery"
 
+# Create DB and tables for the app
+conn = connect("nysc_camp_demo.db")
+cursor = Cursor()
+cursor.execute("""
+    CREATE TABLE IF NOT EXISTS beneficiaries(request_id UNIQUE, phone_no NOT NULL, status NOT NULL, response_message)
+""")
+
 
 def _generate_request_id(phone_number: str) -> str:
     africa_lagos = timezone("Africa/Lagos")
@@ -21,6 +29,31 @@ def _generate_request_id(phone_number: str) -> str:
     random_uuid = str(uuid4())
     request_id = f"{current_time}{random_uuid}{phone_number}".replace("-", "")
     return request_id
+
+
+def _check_phone_number_first_visit(phone_number: str) -> bool:
+    parameter = (phone_number,)
+    phone_check = cursor.execute("SELECT * FROM beneficiaries WHERE phone_no == ?", parameter)
+    if phone_check.fetchone() is None:
+        return False
+    else:
+        return True
+    
+def _save_phone_number(**transaction_details) -> bool:
+    try:
+        parameters = (
+            transaction_details["request_id"],
+            transaction_details["phone_number"],
+            transaction_details["status"],
+            transaction_details["response_message"],
+        )
+        phone_save = cursor.execute("""
+            INSERT INTO beneficiaries(request_id, phone_no, status, response_message) 
+            VALUES()
+        """, parameters)
+        phone_save.commit()
+    except Exception as saveException:
+        print(f"An error occurred. See {saveException}")
 
 
 def _phone_number_is_valid(phone_number: str) -> bool:
@@ -54,9 +87,10 @@ async def index():
 async def recharge(request: Request):
     _request_payload = await request.json()
     phone_number = _request_payload["phone_number"]
-    if _phone_number_is_valid(phone_number):
+    if _phone_number_is_valid(phone_number) and _check_phone_number_first_visit(phone_number):
+        _request_id = _generate_request_id(phone_number)
         recharge_body = {
-            "request_id": _generate_request_id(phone_number),
+            "request_id": _request_id,
             "serviceID": _determine_network_from_phone_number(phone_number),
             "amount": 5.0,
             "phone": phone_number
@@ -72,9 +106,21 @@ async def recharge(request: Request):
             url=RECHARGE_URL, headers=recharge_headers, data=dumps(recharge_body)
         )
 
+        print(
+            recharge_body,
+            recharge_response
+        )
+
         _response = loads(recharge_response.text)
         _response_description = _response["response_description"]
         if _response_description == "TRANSACTION SUCCESSFUL":
+            transaction = {
+                "request_id": _request_id,
+                "phone_number": phone_number,
+                "status": _response["content"]["transactions"]["status"],
+                "response_message": _response_description
+            }
+            _save_phone_number(**transaction)
             _amount = _response["amount"]
             _parsed_response = f"Congrats! iSTEMLabs.Africa credited your number {phone_number} with N{_amount}."
             return {"data": _parsed_response}
