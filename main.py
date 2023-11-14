@@ -1,5 +1,5 @@
 from os import environ
-from sqlite3 import connect, Cursor
+from sqlite3 import connect
 from json import loads, dumps
 from uuid import uuid4
 from typing import Union
@@ -16,7 +16,7 @@ CONFIRM_URL = f"{environ['SERVICE_BASE_URL']}requery"
 
 # Create DB and tables for the app
 conn = connect("nysc_camp_demo.db")
-cursor = Cursor()
+cursor = conn.cursor()
 cursor.execute("""
     CREATE TABLE IF NOT EXISTS 
     beneficiaries(request_id UNIQUE, phone_no NOT NULL, status NOT NULL, response_message, last_updated DATE DEFAULT CURRENT_TIMESTAMP)
