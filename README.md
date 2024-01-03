@@ -1,5 +1,7 @@
 # NYSC Camp Demo - November 2023 by iSTEMLabs.Africa
 
+[![Ceasefire Now](https://badge.techforpalestine.org/ceasefire-now)](https://techforpalestine.org/learn-more)
+
 Welcome to the 5-day (14-hour) Software Engineering crash course for Youth Corpers. If you would like to sign up for the full course, please visit the [Software Engineering: Foundation](https://istemlabs.africa/software-engineering-track/foundation-course) course page at [iSTEMLabs.Africa](https://www.istemlabs.africa)
 
 ## Architecture
